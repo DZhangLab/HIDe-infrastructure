@@ -7,8 +7,40 @@
 1. [Docker](https://docs.docker.com/get-docker/)
 2. [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
 
-- check if WSL2 is already installed (Programs and Features -> Turn Windows features on or off). Over there, check the following boxes (“Windows Subsystem For Linux”, “Virtual Machine Platform”)
-- setup docker wsl integration (Docker Settings -> Resources -> WSL Integration). Over there, check the "WSL Integration" box
+- If installing for the first time
+
+  ```bash
+  wsl --install
+  ```
+
+  else install the Ubuntu Linux distribution
+
+  ```bash
+  wsl --install -d Ubuntu
+  ```
+
+- set the default verion to WSL 2
+  ```bash
+  wsl --set-default-version 2
+  ```
+- list your installed Linux distributions
+  ```bash
+  wsl -l -v
+  ```
+- set the default Linux distribution to Ubuntu
+  ```bash
+  wsl -s Ubuntu
+  ```
+- setup docker wsl integration (Docker Settings -> Resources -> WSL Integration). Over there, check the "WSL Integration" box. The WSL2 linux distribution (Ubuntu) should pop up. Check it and restart Docker
+
+3. Install [Git](https://git-scm.com/downloads)
+
+- Update the following git configurations
+
+```bash
+git config --global core.autocrlf false
+git config --global core.longpaths true
+```
 
 ### Install Fabric and Fabric Samples
 
@@ -46,7 +78,7 @@ cd fabric-samples/test-network
 
 Reproduce the following steps for 2 directories
 
-- C:\Users\[username]\.docker
+- C:\Users\\[username]\.docker
 - C:\Program Files\Git
 
 Right click the directory -> Properties -> Security -> Edit -> Add -> Type "users" in the text box -> Check Names -> Ok -> Highlight the newly added group and check "Full Control" under "Permissions" -> Apply -> Ok -> Ok
@@ -57,28 +89,30 @@ Right click the directory -> Properties -> Security -> Edit -> Add -> Type "user
 docker ps -a
 ```
 
-4. Create a channel called channel1 to join the 2 peer nodes
+4. Create a channel ("mychannel" by default) to join the 2 peer nodes
 
 ```bash
-./network.sh createChannel -c channel1
+./network.sh createChannel
 ```
 
-5. Run chaincode (Go) on the channel. This chaincode is stored in the directory "../asset-transfer-basic/chaincode-go"
+5. Run chaincode (JavaScript) on the channel. This chaincode is stored in the directory "../asset-transfer-basic/chaincode-javascript"
 
 ```bash
-$ ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript -ccl javascript
 ```
+
+- The Go Chaincode has issues with versioning. So a switch to the JavaScript Chaincode was made. More details [here](https://stackoverflow.com/questions/65224577/error-deploying-chaincode-in-hyperledger-fabric-2)!
 
 ### Interacting with the Network
 
-1. Add the binaries to the CLI
+1. Add the binaries we installed at the beginning to the CLI
 
 ```bash
 export PATH=${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=$PWD/../config/
 ```
 
-2. Export the following environment variables for org1
+2. Export the following environment variables for org1 and org2
 
 ```bash
 # Environment variables for Org1
@@ -96,7 +130,7 @@ export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.examp
 export CORE_PEER_ADDRESS=localhost:9051
 ```
 
-3. Initialize the ledger with assets
+3. Initialize the ledger with an initial list of assets. This will invoke the "InitLedger" function of the JavaScript chaincode
 
 ```bash
 peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
@@ -105,13 +139,41 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 2. Query the ledger to get the list of assets/a specific asset
 
 ```bash
-  $ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 
-  $ peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
+peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
 ```
 
-3. Change the owner of an asset on the ledger by invoking the chaincode
+3. Change the owner of an asset on the ledger by invoking the chaincode function "TransferAsset"
 
 ```bash
-$ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"TransferAsset","Args":["asset6","Christopher"]}'
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"TransferAsset","Args":["asset6","Christopher"]}'
+```
+
+4. Bring down the network
+
+```bash
+./network.sh down
+```
+
+## Deploying a smart contract to a channel (WINDOWS)
+
+1. Start the network
+
+```bash
+./network.sh up
+```
+
+2. Create a channel
+
+```bash
+./network.sh createChannel
+```
+
+3. Package the smart contract by installing the smart contract dependencies in the following directory
+
+```bash
+cd ../fabric-samples/asset-transfer-basic/chaincode-javascript
+
+npm install
 ```
