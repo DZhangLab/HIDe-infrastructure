@@ -1,42 +1,105 @@
 # blockchain-health-identity
 
-Everything is done by cloning a repo called "fabric samples" via the following command
+## Prerequisites (WINDOWS)
+
+### Install Dependencies
+
+1. [Docker](https://docs.docker.com/get-docker/)
+2. [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
+
+- check if WSL2 is already installed (Programs and Features -> Turn Windows features on or off). Over there, check the following boxes (“Windows Subsystem For Linux”, “Virtual Machine Platform”)
+- setup docker wsl integration (Docker Settings -> Resources -> WSL Integration). Over there, check the "WSL Integration" box
+
+### Install Fabric and Fabric Samples
+
+Clone a repo called "fabric samples". This will install Fabric samples, docker images & binaries
 
 ```bash
-$ curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.2 1.4.9
+curl -sSL https://bit.ly/2ysbOFE | bash -s
 ```
 
-Clean up any previously run containers and bring up a new container
+## Using the Fabric test network (WINDOWS)
+
+1. Navigate to the test-network folder
 
 ```bash
-$ ./network.sh down
-$ ./network.sh up
+cd fabric-samples/test-network
 ```
 
-List all running docker containers
+2. Clean up any previously run containers before bringing up a new container (Good Practice!). This will create 2 peer nodes, one ordering node
+
+- Peer nodes store the blockchain ledger and validate transactions by running the smart contracts
+- Ordering nodes handle the order of transactions and add them to blocks which are distributed to peer nodes
 
 ```bash
-$ docker ps -a
+./network.sh down
+./network.sh up
 ```
 
-Create a channel called channel1
+- When trying to start a network, the following error might pop up
 
 ```bash
-$ ./network.sh createChannel -c channel1
+"Error response from daemon: mkdir C:\Program Files\Git\var: Access is denied."
 ```
 
-Run chaincode on the channel
+### Solution
+
+Reproduce the following steps for 2 directories
+
+- C:\Users\[username]\.docker
+- C:\Program Files\Git
+
+Right click the directory -> Properties -> Security -> Edit -> Add -> Type "users" in the text box -> Check Names -> Ok -> Highlight the newly added group and check "Full Control" under "Permissions" -> Apply -> Ok -> Ok
+
+3.  To verify, list all running docker containers
+
+```bash
+docker ps -a
+```
+
+4. Create a channel called channel1 to join the 2 peer nodes
+
+```bash
+./network.sh createChannel -c channel1
+```
+
+5. Run chaincode (Go) on the channel. This chaincode is stored in the directory "../asset-transfer-basic/chaincode-go"
 
 ```bash
 $ ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
 ```
 
-## Interacting with the Network
+### Interacting with the Network
 
-1. Initialize the ledger with assets
+1. Add the binaries to the CLI
 
 ```bash
-$ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"InitLedger","Args":[]}'
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=$PWD/../config/
+```
+
+2. Export the following environment variables for org1
+
+```bash
+# Environment variables for Org1
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+
+# Environment variables for Org2
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org2MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+export CORE_PEER_ADDRESS=localhost:9051
+```
+
+3. Initialize the ledger with assets
+
+```bash
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
 ```
 
 2. Query the ledger to get the list of assets/a specific asset
