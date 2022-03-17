@@ -7,8 +7,31 @@
 1. [Docker](https://docs.docker.com/get-docker/)
 2. [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
 
-- check if WSL2 is already installed (Programs and Features -> Turn Windows features on or off). Over there, check the following boxes (“Windows Subsystem For Linux”, “Virtual Machine Platform”)
-- setup docker wsl integration (Docker Settings -> Resources -> WSL Integration). Over there, check the "WSL Integration" box
+- If installing for the first time
+
+  ```bash
+  wsl --install
+  ```
+
+  else install the Ubuntu Linux distribution
+
+  ```bash
+  wsl --install -d Ubuntu
+  ```
+
+- set the default verion to WSL 2
+  ```bash
+  wsl --set-default-version 2
+  ```
+- list your installed Linux distributions
+  ```bash
+  wsl -l -v
+  ```
+- set the default Linux distribution to Ubuntu
+  ```bash
+  wsl -s Ubuntu
+  ```
+- setup docker wsl integration (Docker Settings -> Resources -> WSL Integration). Over there, check the "WSL Integration" box. The WSL2 linux distribution (Ubuntu) should pop up. Check it and restart Docker
 
 ### Install Fabric and Fabric Samples
 
@@ -46,7 +69,7 @@ cd fabric-samples/test-network
 
 Reproduce the following steps for 2 directories
 
-- C:\Users\[username]\.docker
+- C:\Users\\[username]\.docker
 - C:\Program Files\Git
 
 Right click the directory -> Properties -> Security -> Edit -> Add -> Type "users" in the text box -> Check Names -> Ok -> Highlight the newly added group and check "Full Control" under "Permissions" -> Apply -> Ok -> Ok
@@ -57,16 +80,16 @@ Right click the directory -> Properties -> Security -> Edit -> Add -> Type "user
 docker ps -a
 ```
 
-4. Create a channel called channel1 to join the 2 peer nodes
+4. Create a channel ("mychannel" by default) to join the 2 peer nodes
 
 ```bash
-./network.sh createChannel -c channel1
+./network.sh createChannel
 ```
 
 5. Run chaincode (Go) on the channel. This chaincode is stored in the directory "../asset-transfer-basic/chaincode-go"
 
 ```bash
-$ ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
 ```
 
 ### Interacting with the Network
