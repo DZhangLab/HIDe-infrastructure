@@ -86,22 +86,24 @@ docker ps -a
 ./network.sh createChannel
 ```
 
-5. Run chaincode (Go) on the channel. This chaincode is stored in the directory "../asset-transfer-basic/chaincode-go"
+5. Run chaincode (JavaScript) on the channel. This chaincode is stored in the directory "../asset-transfer-basic/chaincode-javascript"
 
 ```bash
-./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript -ccl javascript
 ```
+
+- The Go Chaincode has issues with versioning. So a switch to the JavaScript Chaincode was made. More details [here](https://stackoverflow.com/questions/65224577/error-deploying-chaincode-in-hyperledger-fabric-2)!
 
 ### Interacting with the Network
 
-1. Add the binaries to the CLI
+1. Add the binaries we installed at the beginning to the CLI
 
 ```bash
 export PATH=${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=$PWD/../config/
 ```
 
-2. Export the following environment variables for org1
+2. Export the following environment variables for org1 and org2
 
 ```bash
 # Environment variables for Org1
@@ -119,7 +121,7 @@ export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.examp
 export CORE_PEER_ADDRESS=localhost:9051
 ```
 
-3. Initialize the ledger with assets
+3. Initialize the ledger with an initial list of assets. This will invoke the "InitLedger" function of the JavaScript chaincode
 
 ```bash
 peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
@@ -128,13 +130,19 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 2. Query the ledger to get the list of assets/a specific asset
 
 ```bash
-  $ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 
-  $ peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
+peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
 ```
 
-3. Change the owner of an asset on the ledger by invoking the chaincode
+3. Change the owner of an asset on the ledger by invoking the chaincode function "TransferAsset"
 
 ```bash
-$ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"TransferAsset","Args":["asset6","Christopher"]}'
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"TransferAsset","Args":["asset6","Christopher"]}'
+```
+
+4. Bring down the network
+
+```bash
+./network.sh down
 ```
