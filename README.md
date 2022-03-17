@@ -33,6 +33,15 @@
   ```
 - setup docker wsl integration (Docker Settings -> Resources -> WSL Integration). Over there, check the "WSL Integration" box. The WSL2 linux distribution (Ubuntu) should pop up. Check it and restart Docker
 
+3. Install [Git](https://git-scm.com/downloads)
+
+- Update the following git configurations
+
+```bash
+git config --global core.autocrlf false
+git config --global core.longpaths true
+```
+
 ### Install Fabric and Fabric Samples
 
 Clone a repo called "fabric samples". This will install Fabric samples, docker images & binaries
@@ -145,4 +154,26 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 
 ```bash
 ./network.sh down
+```
+
+## Deploying a smart contract to a channel (WINDOWS)
+
+1. Start the network
+
+```bash
+./network.sh up
+```
+
+2. Create a channel
+
+```bash
+./network.sh createChannel
+```
+
+3. Package the smart contract by installing the smart contract dependencies in the following directory
+
+```bash
+cd ../fabric-samples/asset-transfer-basic/chaincode-javascript
+
+npm install
 ```
