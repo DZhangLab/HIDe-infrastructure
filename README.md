@@ -435,3 +435,17 @@ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 ```bash
 ./network.sh down
 ```
+
+## Running a Fabric Application (WINDOWS)
+
+1. Bring up a new network and create a new channel called mychannel
+
+```bash
+./network.sh up createChannel -c mychannel -ca
+```
+
+2. Deploy the chaincode package containing the TypeScript smart contract.
+
+```bash
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-typescript/ -ccl typescript
+```
