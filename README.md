@@ -158,6 +158,8 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 
 ## Deploying a smart contract to a channel (WINDOWS)
 
+### Package the smart contract
+
 1. Start the network
 
 ```bash
@@ -178,7 +180,7 @@ cd ../asset-transfer-basic/chaincode-javascript
 npm install
 ```
 
-4. navigate back to ./test-network directory and add the binaries we installed at the beginning to utilize the peer CLI
+4. Navigate back to ./test-network directory and add the binaries we installed at the beginning to utilize the peer CLI
 
 ```bash
 cd ../../test-network
@@ -192,7 +194,9 @@ export FABRIC_CFG_PATH=$PWD/../config/
 peer lifecycle chaincode package basic.tar.gz --path ../asset-transfer-basic/chaincode-javascript/ --lang node --label basic_1.0
 ```
 
-6. Export the following environment variables for org1
+### Install the chaincode
+
+1. Export the following environment variables for org1
 
 ```bash
 # Environment variables for Org1
@@ -203,13 +207,13 @@ export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.examp
 export CORE_PEER_ADDRESS=localhost:7051
 ```
 
-7. Install the chaincode on peer1. On success, the peer will generate and return the package identifier
+2. Install the chaincode on peer1. On success, the peer will generate and return the package identifier
 
 ```bash
 peer lifecycle chaincode install basic.tar.gz
 ```
 
-8. Export the following environment variables for org2
+3. Export the following environment variables for org2
 
 ```bash
 # Environment variables for Org2
@@ -220,31 +224,33 @@ export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.examp
 export CORE_PEER_ADDRESS=localhost:9051
 ```
 
-9. Install the chaincode on peer2. On success,
+4. Install the chaincode on peer2. On success,
 
 ```bash
 peer lifecycle chaincode install basic.tar.gz
 ```
 
-10. Find the package ID of the chaincode
+### Approve a chaincode definition
+
+1. Find the package ID of the chaincode
 
 ```bash
 peer lifecycle chaincode queryinstalled
 ```
 
-11. Save the package ID as an environment variable. The package ID is different for every user so be sure to paste your own package ID instead of the one below
+2. Save the package ID as an environment variable. The package ID is different for every user so be sure to paste your own package ID instead of the one below
 
 ```bash
 export CC_PACKAGE_ID=basic_1.0:ee09716080838e1c287295df0f2c85ecf048b814932e478c14cc53a2615c5627
 ```
 
-12. Approve the chaincode definition as org2
+3. Approve the chaincode definition as org2
 
 ```bash
 peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
 ```
 
-13. Set the following environment variables to operate as the Org1 admin
+4. Set the following environment variables to operate as the Org1 admin
 
 ```bash
 export CORE_PEER_LOCALMSPID="Org1MSP"
@@ -253,14 +259,16 @@ export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.e
 export CORE_PEER_ADDRESS=localhost:7051
 ```
 
-14. Approve the chaincode definition as org1
+5. Approve the chaincode definition as org1
 
 ```bash
 peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
 
 ```
 
-15. Check whether channel members have approved the same chaincode definition
+### Committing the chaincode definition to the channel
+
+1. Check whether channel members have approved the same chaincode definition
 
 ```bash
 peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name basic --version 1.0 --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --output json
@@ -277,7 +285,7 @@ peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name basic
   }
   ```
 
-16. Since both organizations that are members of the channel have approved the same parameters, commit the chaincode definition to the channel
+2. Since both organizations that are members of the channel have approved the same parameters, commit the chaincode definition to the channel
 
 ```bash
 peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 1.0 --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
@@ -285,7 +293,7 @@ peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride o
 
 ```
 
-17. Confirm that the chaincode definition has been committed to the channel
+3. Confirm that the chaincode definition has been committed to the channel
 
 ```bash
 peer lifecycle chaincode querycommitted --channelID mychannel --name basic --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
@@ -297,4 +305,133 @@ peer lifecycle chaincode querycommitted --channelID mychannel --name basic --caf
   Version: 1.0, Sequence: 1, Endorsement Plugin: escc, Validation Plugin: vscc, Approvals: [Org1MSP: true, Org2MSP: true]
   ```
 
-18.
+### Invoking the chaincode
+
+1. Invoke the chaincode by creating an initial set of assets on the ledger
+
+```bash
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
+```
+
+2. Read the set of cars that were created by the chaincode
+
+```bash
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+```
+
+### Upgrading a smart contract
+
+1. Set the environment variables needed to use the peer CLI and create another chaincode package in the current directory (basic.tar.gz)
+
+```bash
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=$PWD/../config/
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+peer lifecycle chaincode package basic_2.tar.gz --path ../asset-transfer-basic/chaincode-javascript/ --lang node --label basic_2.0
+```
+
+2. Set Environment variables to operate the peer as the Org1 admin
+
+```bash
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+```
+
+3. Install the new chaincode package on the Org1 peer.
+
+```bash
+peer lifecycle chaincode install basic_2.tar.gz
+```
+
+4. Find the new package ID by querying our peer
+
+```bash
+peer lifecycle chaincode queryinstalled
+```
+
+- On success, output should be something like this
+  ```bash
+  Installed chaincodes on peer:
+  Package ID: basic_2.0:c522b9ca4df9be460b8136444b317ee77603613ef4de022b72b16c5de8080a9b, Label: basic_2.0
+  Package ID: basic_1.0:ee09716080838e1c287295df0f2c85ecf048b814932e478c14cc53a2615c5627, Label: basic_1.0
+  ```
+
+5. Save the new packae ID as a new environment variable. The package ID is different for every user so be sure to paste your own package ID instead of the one below
+
+```bash
+export NEW_CC_PACKAGE_ID=basic_2.0:c522b9ca4df9be460b8136444b317ee77603613ef4de022b72b16c5de8080a9b
+```
+
+6. Approve a new chaincode definition as Org1
+
+```bash
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 2.0 --package-id $NEW_CC_PACKAGE_ID --sequence 2 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+```
+
+7. Set Environment variables to operate the peer as the Org2 admin
+
+```bash
+export CORE_PEER_LOCALMSPID="Org2MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+export CORE_PEER_ADDRESS=localhost:9051
+```
+
+8. Install the new chaincode package on the Org2 peer
+
+```bash
+peer lifecycle chaincode install basic_2.tar.gz
+```
+
+9. Approve the new chaincode definition for Org2
+
+```bash
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 2.0 --package-id $NEW_CC_PACKAGE_ID --sequence 2 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+```
+
+10. Check if the chaincode definition with sequence 2 is ready to be committed to the channel
+
+```bash
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name basic --version 2.0 --sequence 2 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --output json
+```
+
+11. Upgrade the chaincode for Org2
+
+```bash
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 2.0 --sequence 2 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+```
+
+12. Verify that the new chaincode has started on your peers
+
+```bash
+docker ps
+```
+
+- On success, output should be something like this
+  ```bash
+  CONTAINER ID   IMAGE                                                                                                                                                                    COMMAND                  CREATED          STATUS          PORTS                                                                    NAMES
+  0f7c11597adf   dev-peer0.org1.example.com-basic_2.0-c522b9ca4df9be460b8136444b317ee77603613ef4de022b72b16c5de8080a9b-a3ad3f4f232233ba9148c46e0ba39977e54a119d026b5d328f81188cecaf4dc0   "docker-entrypoint.s…"   29 seconds ago   Up 28 seconds                                                                            dev-peer0.org1.example.com-basic_2.0-c522b9ca4df9be460b8136444b317ee77603613ef4de022b72b16c5de8080a9b
+  80a5cad4b0c9   dev-peer0.org2.example.com-basic_2.0-c522b9ca4df9be460b8136444b317ee77603613ef4de022b72b16c5de8080a9b-f2bdfa435c6cbf56eecdbf801d44d724f7bff2ee6ce032e5d4833a19840dd7d3   "docker-entrypoint.s…"   29 seconds ago   Up 29 seconds                                                                            dev-peer0.org2.example.com-basic_2.0-c522b9ca4df9be460b8136444b317ee77603613ef4de022b72b16c5de8080a9b
+  30c3d67d01bd   hyperledger/fabric-tools:latest                                                                                                                                          "/bin/bash"              28 minutes ago   Up 28 minutes                                                                            cli
+  6bcd5a8d38e6   hyperledger/fabric-peer:latest                                                                                                                                           "peer node start"        28 minutes ago   Up 28 minutes   0.0.0.0:7051->7051/tcp, 0.0.0.0:9444->9444/tcp                           peer0.org1.example.com
+  631a606a256f   hyperledger/fabric-orderer:latest
+  ```
+
+13. Test the new JavaScript chaincode by creating a new car and then query all the cars on the ledger
+
+```bash
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CreateAsset","Args":["asset8","blue","16","Kelley","750"]}'
+
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+
+```
+
+14. Clean up the network
+
+```bash
+./network.sh down
+```
