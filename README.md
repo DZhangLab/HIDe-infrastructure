@@ -449,3 +449,23 @@ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 ```bash
 ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-typescript/ -ccl typescript
 ```
+
+3. Package the smart contract by installing the smart contract dependencies in the following directory
+
+```bash
+cd ../asset-transfer-basic/application-gateway-typescript
+
+npm install
+```
+
+4. Start the sample application. Make sure to have the latest version of node installed
+
+```bash
+npm start
+```
+
+5. Clean up the network
+
+```bash
+./network.sh down
+```
