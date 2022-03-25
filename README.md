@@ -112,7 +112,7 @@ export PATH=${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=$PWD/../config/
 ```
 
-2. Export the following environment variables for org1 and org2
+2. Export the following environment variables for org1
 
 ```bash
 # Environment variables for Org1
@@ -121,13 +121,6 @@ export CORE_PEER_LOCALMSPID="Org1MSP"
 export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
 export CORE_PEER_ADDRESS=localhost:7051
-
-# Environment variables for Org2
-export CORE_PEER_TLS_ENABLED=true
-export CORE_PEER_LOCALMSPID="Org2MSP"
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
-export CORE_PEER_ADDRESS=localhost:9051
 ```
 
 3. Initialize the ledger with an initial list of assets. This will invoke the "InitLedger" function of the JavaScript chaincode
@@ -140,8 +133,6 @@ peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.exa
 
 ```bash
 peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
-
-peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
 ```
 
 3. Change the owner of an asset on the ledger by invoking the chaincode function "TransferAsset"
@@ -150,7 +141,25 @@ peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
 peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"TransferAsset","Args":["asset6","Christopher"]}'
 ```
 
-4. Bring down the network
+
+4. Export the following environment variables for org2
+
+```bash
+# Environment variables for Org2
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org2MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+export CORE_PEER_ADDRESS=localhost:9051
+```
+
+5. Query the asset transfer on org2
+
+```bash
+peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
+```
+
+6. Bring down the network
 
 ```bash
 ./network.sh down
