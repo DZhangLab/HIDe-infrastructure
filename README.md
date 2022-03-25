@@ -50,7 +50,7 @@ Clone a repo called "fabric samples". This will install Fabric samples, docker i
 curl -sSL https://bit.ly/2ysbOFE | bash -s
 ```
 
-## Using the Fabric test network (WINDOWS)
+## Using the Fabric test network (WINDOWS 11)
 
 1. Navigate to the test-network folder
 
