@@ -247,10 +247,10 @@ peer lifecycle chaincode install basic.tar.gz
 peer lifecycle chaincode queryinstalled
 ```
 
-2. Save the package ID as an environment variable. The package ID is different for every user so be sure to paste your own package ID instead of the one below
+2. Save the package ID as an environment variable. The package ID is different for every user so be sure to paste your own package ID.
 
 ```bash
-export CC_PACKAGE_ID=basic_1.0:ee09716080838e1c287295df0f2c85ecf048b814932e478c14cc53a2615c5627
+export CC_PACKAGE_ID= <insert_package_id>
 ```
 
 3. Approve the chaincode definition as org2
@@ -368,10 +368,10 @@ peer lifecycle chaincode queryinstalled
   Package ID: basic_1.0:ee09716080838e1c287295df0f2c85ecf048b814932e478c14cc53a2615c5627, Label: basic_1.0
   ```
 
-5. Save the new packae ID as a new environment variable. The package ID is different for every user so be sure to paste your own package ID instead of the one below
+5. Save the new basic 2.0 package ID as a new environment variable. The package ID is different for every user so be sure to paste your own package ID instead of the one below
 
 ```bash
-export NEW_CC_PACKAGE_ID=basic_2.0:c522b9ca4df9be460b8136444b317ee77603613ef4de022b72b16c5de8080a9b
+export NEW_CC_PACKAGE_ID= <insert_package_id>
 ```
 
 6. Approve a new chaincode definition as Org1
@@ -473,8 +473,9 @@ npm install
 npm start
 ```
 
-5. Clean up the network
+5. Navigate back to the test-network directory and clean up the network
 
 ```bash
+cd ../../test-network
 ./network.sh down
 ```
