@@ -1,8 +1,8 @@
 # blockchain-health-identity
 
-## Prerequisites (WINDOWS)
+## Prerequisites 
 
-### Install Dependencies
+### Install Dependencies (WINDOWS 11/ LINUX)
 
 1. [Docker](https://docs.docker.com/get-docker/)
 2. [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
@@ -41,7 +41,43 @@
 git config --global core.autocrlf false
 git config --global core.longpaths true
 ```
+### Install Dependencies (MAC)
+1. Install Homwebrew
 
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+brew --version
+```
+
+2. Install Git
+
+```bash
+brew install git
+git --version
+```
+
+3. Install cURL
+
+```bash
+brew install curl
+$ curl --version
+```
+
+4. Install JQ
+
+```bash
+brew install jq
+jq --version
+```
+
+5. Install Docker. If the following commands do not work, install via executable from the [website](https://docs.docker.com/get-docker/)
+
+```bash
+brew install --cask --appdir="/Applications" docker
+open /Applications/Docker.app
+docker --version
+docker-compose --version
+```
 ### Install Fabric and Fabric Samples
 
 Clone a repo called "fabric samples". This will install Fabric samples, docker images & binaries
@@ -50,7 +86,7 @@ Clone a repo called "fabric samples". This will install Fabric samples, docker i
 curl -sSL https://bit.ly/2ysbOFE | bash -s
 ```
 
-## Using the Fabric test network (WINDOWS 11)
+## Using the Fabric test network (WINDOWS 11/ LINUX/ MAC)
 
 1. Navigate to the test-network folder
 
@@ -165,7 +201,7 @@ peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
 ./network.sh down
 ```
 
-## Deploying a smart contract to a channel (WINDOWS)
+## Deploying a smart contract to a channel (WINDOWS 11/ LINUX/ MAC)
 
 ### Package the smart contract
 
@@ -445,7 +481,11 @@ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 ./network.sh down
 ```
 
-## Running a Fabric Application (WINDOWS)
+Here is a visual depiction of how the everything in the network is organized for the preceding tutorials
+
+<img src="network.diagram.1.png" width="800" height="500">
+
+## Running a Fabric Application (WINDOWS11/ LINUX/ MAC)
 
 1. Bring up a new network and create a new channel called mychannel
 
@@ -480,7 +520,7 @@ cd ../../test-network
 ./network.sh down
 ```
 
-## Creating a Channel using the test network (WINDOWS)
+## Creating a Channel using the test network (WINDOWS 11/ LINUX/ MAC)
 
 1. Move into the test-network directory
 
