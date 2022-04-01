@@ -479,3 +479,162 @@ npm start
 cd ../../test-network
 ./network.sh down
 ```
+
+## Creating a Channel using the test network (WINDOWS)
+
+1. Move into the test-network directory
+
+```bash
+cd test-network
+```
+
+2. Clean up previous network and bring a new one up
+
+```bash
+./network.sh down
+./network.sh up
+```
+
+3. Add the binaries we installed at the beginning to the CLI and use a tool called configtxgen, create genesis block for channel1
+
+```bash
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=${PWD}/configtx
+configtxgen -profile TwoOrgsApplicationGenesis -outputBlock ./channel-artifacts/channel1.block -channelID channel1
+```
+
+4. Set some environment variables and use a tool called osnadmin to create the application channel
+
+```bash
+export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.key
+osnadmin channel join --channelID channel1 --config-block ./channel-artifacts/channel1.block -o localhost:7053 --ca-file "$ORDERER_CA" --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"
+```
+- On success, the output should look like this:
+
+```bash
+Status: 201
+{
+    "name": "channel1",
+    "url": "/participation/v1/channels/channel1",
+    "consensusRelation": "consenter",
+    "status": "active",
+    "height": 1
+}
+```
+
+5. List channels on an orderer
+
+```bash
+osnadmin channel list -o localhost:7053 --ca-file "$ORDERER_CA" --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"
+```
+
+- On successm the output look like this:
+
+```bash
+Status: 200
+{
+    "systemChannel": null,
+    "channels": [
+        {
+            "name": "channel1",
+            "url": "/participation/v1/channels/channel1"
+        }
+    ]
+}
+```
+
+6. Set some environment variables to take on Org1's identity, add binaries for using the peer CLI and join peer node "Org1" to the channel
+
+```bash
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+
+export FABRIC_CFG_PATH=$PWD/../config/
+
+peer channel join -b ./channel-artifacts/channel1.block
+```
+
+7. Set some environment variables to take on Org2's identity, add binaries for using the peer CLI and join peer node "Org2" to the channel
+
+```bash
+export CORE_PEER_LOCALMSPID="Org2MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+export CORE_PEER_ADDRESS=localhost:9051
+
+peer channel join -b ./channel-artifacts/channel1.block
+
+```
+8. Set environment variables for Org1 one of your peer nodes in Org1 to be anchor needs (needed for storing private data etc.)
+
+```bash
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+```
+
+9. Fetch the current channel configuration. All values should be 0 since we only have a genesis block so far.
+
+```bash
+peer channel fetch config channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c channel1 --tls --cafile "$ORDERER_CA"
+```
+
+10. Move into channel-artifacts directory. The channel configuration block (config_block.pb) is stored here
+
+```bash
+cd channel-artifacts
+```
+
+11. Using a tool called configtxlator, convert the protobuf file to json and strip away metadat. This will also create config_block.json and config.json respectively.
+
+```bash
+configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
+jq '.data.data[0].payload.data.config' config_block.json > config.json
+```
+
+12. Make a copy of the config.json file
+
+```bash
+cp config.json config_copy.json
+```
+
+13. Use a tool called jq to add the Org1 anchor peer to the channel configuration. This will create modified_config.json
+
+ ```bash
+ jq '.channel_group.groups.Application.groups.Org1MSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.org1.example.com","port": 7051}]},"version": "0"}}' config_copy.json > modified_config.json
+```
+
+12. Convert the 2 .json files into protobuf (.pb) files again. This will create config.pb and modified_config.pb
+
+```bash
+configtxlator proto_encode --input config.json --type common.Config --output config.pb
+configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
+```
+
+13. Calculate the difference between the contents of these protobuf files. This will create config_update.pb
+
+```bash
+configtxlator compute_update --channel_id channel1 --original config.pb --updated modified_config.pb --output config_update.pb
+```
+
+14. Convert the protobuf file into json file. This will create config_update.json. And then wrap the json with a transaction envelope. This will create config_update_in_envelope.pb
+
+```bash
+configtxlator proto_decode --input config_update.pb --type common.ConfigUpdate --output config_update.json
+
+echo '{"payload":{"header":{"channel_header":{"channel_id":"channel1", "type":2}},"data":{"config_update":'$(cat config_update.json)'}}}' | jq . > config_update_in_envelope.json
+configtxlator proto_encode --input config_update_in_envelope.json --type common.Envelope --output config_update_in_envelope.pb
+```
+
+15. Move back into the test-network directory. Add the anchor peer by providing the new channel configuration
+
+```bash
+cd ..
+peer channel update -f channel-artifacts/config_update_in_envelope.pb -c channel1 -o localhost:7050  --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+```
