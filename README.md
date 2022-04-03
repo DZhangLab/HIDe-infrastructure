@@ -631,7 +631,7 @@ peer channel fetch config channel-artifacts/config_block.pb -o localhost:7050 --
 cd channel-artifacts
 ```
 
-11. Using a tool called configtxlator, convert the protobuf file to json and strip away metadat. This will also create config_block.json and config.json respectively.
+11. Using a tool called configtxlator, convert the protobuf file to json and strip away metadata. This will also create config_block.json and config.json respectively.
 
 ```bash
 configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
@@ -687,3 +687,69 @@ export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.e
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
 export CORE_PEER_ADDRESS=localhost:9051
 ```
+
+17. Fetch the current configuration block. All values should be 1 since we are on the 2nd block now.
+
+```bash
+peer channel fetch config channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c channel1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+```
+
+18. Move into channel-artifacts directory. The channel configuration block (config_block.pb) is stored here
+
+```bash
+cd channel-artifacts
+```
+
+19. Decode the block into json format, strip away metadata and copy the configuration block
+
+```bash
+configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
+jq '.data.data[0].payload.data.config' config_block.json > config.json
+cp config.json config_copy.json
+```
+
+20. Add the Org2 peer to the channel as the anchor peer in the channel configuration:
+
+```bash
+jq '.channel_group.groups.Application.groups.Org2MSP.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "peer0.org2.example.com","port": 9051}]},"version": "0"}}' config_copy.json > modified_config.json
+```
+
+21. Convert both the original and updated channel configurations back into protobuf format and calculate the difference between them
+
+```bash
+configtxlator proto_encode --input config.json --type common.Config --output config.pb
+configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
+configtxlator compute_update --channel_id channel1 --original config.pb --updated modified_config.pb --output config_update.pb
+```
+
+22. Convert protobuf into json, wrap the configuration update in a transaction envelope and convert it back into protobuf:
+
+```bash
+configtxlator proto_decode --input config_update.pb --type common.ConfigUpdate --output config_update.json
+echo '{"payload":{"header":{"channel_header":{"channel_id":"channel1", "type":2}},"data":{"config_update":'$(cat config_update.json)'}}}' | jq . > config_update_in_envelope.json
+configtxlator proto_encode --input config_update_in_envelope.json --type common.Envelope --output config_update_in_envelope.pb
+```
+
+23. Change back into test-network directory and update the channel by setting the Org2 anchor peer:
+
+```bash
+cd ..
+peer channel update -f channel-artifacts/config_update_in_envelope.pb -c channel1 -o localhost:7050  --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+```
+
+24. Confirm that the channel has been successfully updated. Height of the channel should be 3.
+
+```bash
+peer channel getinfo -c channel1
+```
+
+25. Deploy a chaincode (JavaScript) to our new channel, initialize with some assets and confirm the addition of assets
+
+```bash
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go -c channel1
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C channel1 -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
+
+peer chaincode query -C channel1 -n basic -c '{"Args":["getAllAssets"]}'
+```
+
