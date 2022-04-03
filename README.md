@@ -746,10 +746,10 @@ peer channel getinfo -c channel1
 25. Deploy a chaincode (JavaScript) to our new channel, initialize with some assets and confirm the addition of assets
 
 ```bash
-./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go -c channel1
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript/ -ccl javascript -c channel1
 
 peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C channel1 -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
 
-peer chaincode query -C channel1 -n basic -c '{"Args":["getAllAssets"]}'
+peer chaincode query -C channel1 -n basic -c '{"Args":["GetAllAssets"]}'
 ```
 
