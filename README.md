@@ -366,7 +366,7 @@ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 
 ### Upgrading a smart contract
 
-1. Set the environment variables needed to use the peer CLI and create another chaincode package in the current directory (basic.tar.gz)
+1. Set the environment variables needed to use the peer CLI and create another chaincode package in the current directory (basic_2.tar.gz)
 
 ```bash
 export PATH=${PWD}/../bin:$PATH
