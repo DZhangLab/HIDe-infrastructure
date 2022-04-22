@@ -65,10 +65,10 @@ function generateOrg3() {
     fi
     infoln "Generating certificates using cryptogen tool"
 
-    infoln "Creating Org3 Identities"
+    infoln "Creating Org${ORG_NUM} Identities"
 
     set -x
-    cryptogen generate --config=org3-crypto.yaml --output="../organizations"
+    cryptogen generate --config=org${ORG_NUM}-crypto.yaml --output="../organizations"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
@@ -95,13 +95,13 @@ function generateOrg3() {
 
     sleep 10
 
-    infoln "Creating Org3 Identities"
-    createOrg3
+    infoln "Creating Org${ORG_NUM} Identities"
+    createOrg3 ${ORG_NUM}
 
   fi
 
-  infoln "Generating CCP files for Org3"
-  ./ccp-generate.sh
+  infoln "Generating CCP files for Org${ORG_NUM}"
+  ./ccp-generate.sh ${ORG_NUM}
 }
 
 # Generate channel configuration transaction
@@ -110,14 +110,14 @@ function generateOrg3Definition() {
   if [ "$?" -ne 0 ]; then
     fatalln "configtxgen tool not found. exiting"
   fi
-  infoln "Generating Org3 organization definition"
+  infoln "Generating Org${ORG_NUM} organization definition"
   export FABRIC_CFG_PATH=$PWD
   set -x
-  configtxgen -printOrg Org3MSP > ../organizations/peerOrganizations/org3.example.com/org3.json
+  configtxgen -printOrg Org${ORG_NUM}MSP > ../organizations/peerOrganizations/org${ORG_NUM}.example.com/org${ORG_NUM}.json
   res=$?
   { set +x; } 2>/dev/null
   if [ $res -ne 0 ]; then
-    fatalln "Failed to generate Org3 organization definition..."
+    fatalln "Failed to generate Org${ORG_NUM} organization definition..."
   fi
 }
 
@@ -134,38 +134,37 @@ function Org3Up () {
     DOCKER_SOCK=${DOCKER_SOCK} ${CONTAINER_CLI_COMPOSE} -f ${COMPOSE_FILE_BASE} -f $COMPOSE_FILE_ORG3 up -d 2>&1
   fi
   if [ $? -ne 0 ]; then
-    fatalln "ERROR !!!! Unable to start Org3 network"
+    fatalln "ERROR !!!! Unable to start Org${ORG_NUM} network"
   fi
 }
 
 # Generate the needed certificates, the genesis block and start the network.
 function addOrg3 () {
-  # If the test network is not up, abort
   if [ ! -d ../organizations/ordererOrganizations ]; then
     fatalln "ERROR: Please, run ./network.sh up createChannel first."
   fi
 
   # generate artifacts if they don't exist
-  if [ ! -d "../organizations/peerOrganizations/org3.example.com" ]; then
+  if [ ! -d "../organizations/peerOrganizations/org${ORG_NUM}.example.com" ]; then
     generateOrg3
     generateOrg3Definition
   fi
 
-  infoln "Bringing up Org3 peer"
+  infoln "Bringing up Org${ORG_NUM} peer"
   Org3Up
 
   # Use the CLI container to create the configuration transaction needed to add
   # Org3 to the network
-  infoln "Generating and submitting config tx to add Org3"
-  ${CONTAINER_CLI} exec cli ./scripts/org3-scripts/updateChannelConfig.sh $CHANNEL_NAME $CLI_DELAY $CLI_TIMEOUT $VERBOSE
+  infoln "Generating and submitting config tx to add Org${ORG_NUM}"
+  ${CONTAINER_CLI} exec cli ./scripts/org${ORG_NUM}-scripts/updateChannelConfig.sh $CHANNEL_NAME $CLI_DELAY $CLI_TIMEOUT $VERBOSE
   if [ $? -ne 0 ]; then
     fatalln "ERROR !!!! Unable to create config tx"
   fi
 
-  infoln "Joining Org3 peers to network"
-  ${CONTAINER_CLI} exec cli ./scripts/org3-scripts/joinChannel.sh $CHANNEL_NAME $CLI_DELAY $CLI_TIMEOUT $VERBOSE
+  infoln "Joining Org${ORG_NUM} peers to network"
+  ${CONTAINER_CLI} exec cli ./scripts/org${ORG_NUM}-scripts/joinChannel.sh $CHANNEL_NAME $CLI_DELAY $CLI_TIMEOUT $VERBOSE
   if [ $? -ne 0 ]; then
-    fatalln "ERROR !!!! Unable to join Org3 peers to network"
+    fatalln "ERROR !!!! Unable to join Org${ORG_NUM} peers to network"
   fi
 }
 
@@ -184,15 +183,17 @@ CLI_TIMEOUT=10
 CLI_DELAY=3
 # channel name defaults to "mychannel"
 CHANNEL_NAME="mychannel"
+# Org number
+ORG_NUM = 3
 # use this as the docker compose couch file
-COMPOSE_FILE_COUCH_BASE=compose/compose-couch-org3.yaml
-COMPOSE_FILE_COUCH_ORG3=compose/${CONTAINER_CLI}/docker-compose-couch-org3.yaml
+COMPOSE_FILE_COUCH_BASE=compose/compose-couch-org${ORG_NUM}.yaml
+COMPOSE_FILE_COUCH_ORG3=compose/${CONTAINER_CLI}/docker-compose-couch-org${ORG_NUM}.yaml
 # use this as the default docker-compose yaml definition
-COMPOSE_FILE_BASE=compose/compose-org3.yaml
-COMPOSE_FILE_ORG3=compose/${CONTAINER_CLI}/docker-compose-org3.yaml
+COMPOSE_FILE_BASE=compose/compose-org${ORG_NUM}.yaml
+COMPOSE_FILE_ORG3=compose/${CONTAINER_CLI}/docker-compose-org${ORG_NUM}.yaml
 # certificate authorities compose file
-COMPOSE_FILE_CA_BASE=compose/compose-ca-org3.yaml
-COMPOSE_FILE_CA_ORG3=compose/${CONTAINER_CLI}/docker-compose-ca-org3.yaml
+COMPOSE_FILE_CA_BASE=compose/compose-ca-org${ORG_NUM}.yaml
+COMPOSE_FILE_CA_ORG3=compose/${CONTAINER_CLI}/docker-compose-ca-org${ORG_NUM}.yaml
 # database
 DATABASE="leveldb"
 
@@ -219,6 +220,10 @@ while [[ $# -ge 1 ]] ; do
   -h )
     printHelp
     exit 0
+    ;;
+  -n )
+    ORG_NUM="$2"
+    shift
     ;;
   -c )
     CHANNEL_NAME="$2"
@@ -254,12 +259,12 @@ done
 
 # Determine whether starting, stopping, restarting or generating for announce
 if [ "$MODE" == "up" ]; then
-  infoln "Adding org3 to channel '${CHANNEL_NAME}' with '${CLI_TIMEOUT}' seconds and CLI delay of '${CLI_DELAY}' seconds and using database '${DATABASE}'"
+  infoln "Adding org${ORG_NUM} to channel '${CHANNEL_NAME}' with '${CLI_TIMEOUT}' seconds and CLI delay of '${CLI_DELAY}' seconds and using database '${DATABASE}'"
   echo
 elif [ "$MODE" == "down" ]; then
   EXPMODE="Stopping network"
 elif [ "$MODE" == "generate" ]; then
-  EXPMODE="Generating certs and organization definition for Org3"
+  EXPMODE="Generating certs and organization definition for Org${ORG_NUM}"
 else
   printHelp
   exit 1
@@ -267,12 +272,12 @@ fi
 
 #Create the network using docker compose
 if [ "${MODE}" == "up" ]; then
-  addOrg3
+  addOrg3 ${ORG_NUM}
 elif [ "${MODE}" == "down" ]; then ## Clear the network
   networkDown
 elif [ "${MODE}" == "generate" ]; then ## Generate Artifacts
-  generateOrg3
-  generateOrg3Definition
+  generateOrg3 ${ORG_NUM}
+  generateOrg3Definition ${ORG_NUM}
 else
   printHelp
   exit 1
