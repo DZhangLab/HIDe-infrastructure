@@ -1,0 +1,177 @@
+
+Organizations:
+    - &OrdererOrg
+            Name: OrdererMSP
+            ID: OrdererMSP
+            MSPDir: crypto-config/ordererOrganizations/ordererOrg.net/msp
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('OrdererMSP.member')"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('OrdererMSP.member')"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('OrdererMSP.admin')"
+
+    
+    - &HospitalOrgOrg
+            Name: HospitalOrgMSP
+            ID: HospitalOrgMSP
+            MSPDir: crypto-config/peerOrganizations/hospitalOrg.com/msp
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('HospitalOrgMSP.admin', 'HospitalOrgMSP.peer', 'HospitalOrgMSP.client' )"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('HospitalOrgMSP.admin', 'HospitalOrgMSP.client' )"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('HospitalOrgMSP.admin')"
+                Endorsement:
+                    Type: Signature
+                    Rule: "OR('HospitalOrgMSP.peer')"                
+            AnchorPeers:
+              - Host: peer0.hospitalOrg.com
+                Port: 7051
+    
+    - &ClinicOrgOrg
+            Name: ClinicOrgMSP
+            ID: ClinicOrgMSP
+            MSPDir: crypto-config/peerOrganizations/clinicOrg.com/msp
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('ClinicOrgMSP.admin', 'ClinicOrgMSP.peer', 'ClinicOrgMSP.client' )"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('ClinicOrgMSP.admin', 'ClinicOrgMSP.client' )"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('ClinicOrgMSP.admin')"
+                Endorsement:
+                    Type: Signature
+                    Rule: "OR('ClinicOrgMSP.peer')"                
+            AnchorPeers:
+              - Host: peer0.clinicOrg.com
+                Port: 7051
+    
+
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+    Orderer: &OrdererCapabilities
+        V2_0: true
+    Application: &ApplicationCapabilities
+        V2_0: true
+
+
+Application: &ApplicationDefaults
+    Organizations:
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+
+Orderer: &OrdererDefaults
+    OrdererType: etcdraft
+    Addresses:
+          - orderer0.ordererOrg.net:7050
+          - orderer1.ordererOrg.net:7050
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 98 MB
+        PreferredMaxBytes: 1024 KB
+    EtcdRaft:
+        Consenters:
+          
+            - Host: orderer0.ordererOrg.net
+              Port: 7050
+              ClientTLSCert: crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer0.ordererOrg.net/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer0.ordererOrg.net/tls/server.crt
+           
+            - Host: orderer1.ordererOrg.net
+              Port: 7050
+              ClientTLSCert: crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer1.ordererOrg.net/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer1.ordererOrg.net/tls/server.crt
+           
+    Organizations:
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+
+Profiles:
+    OrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities 
+        Consortiums:
+            RDISConsortium:
+                Organizations:
+                   - *HospitalOrgOrg
+                   - *ClinicOrgOrg
+                   
+        
+    
+    rdis:
+        Consortium: RDISConsortium
+        <<: *ChannelDefaults
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+              - *HospitalOrgOrg
+              - *ClinicOrgOrg
+              
+            Capabilities:
+              <<: *ApplicationCapabilities
+    
+        
+

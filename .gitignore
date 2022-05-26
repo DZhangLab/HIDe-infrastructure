@@ -1,0 +1,14 @@
+
+worldstate/
+*.tar.gz
+*.txt
+*.block
+*.tx
+bin/
+blocks/
+crypto-config/*
+config/
+bin/
+chaincode/*
+
+

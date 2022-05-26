@@ -1,0 +1,51 @@
+OrdererOrgs:
+- CA:
+    Country: US
+    Locality: Nashville
+    OrganizationalUnit: Medical
+    PostalCode: "37235"
+    Province: TN
+    StreetAddress: 2301 Vanderbilt Pl
+  Domain: ordererOrg.net
+  Name: Orderer
+  Specs:
+  - SANS:
+    - localhost
+  Template:
+    Count: 2
+    Hostname: orderer{{.Index}}
+PeerOrgs:
+- CA:
+    Country: US
+    Hostname: ca
+    Locality: Nashville
+    OrganizationalUnit: Medical
+    PostalCode: "37235"
+    Province: TN
+    StreetAddress: 2201 Vanderbilt Pl
+  Domain: hospitalOrg.com
+  EnableNodeOUs: true
+  Name: HospitalOrg
+  Template:
+    Count: 3
+    SANS:
+    - localhost
+  Users:
+    Count: 3
+- CA:
+    Country: US
+    Hostname: ca
+    Locality: Nashville
+    OrganizationalUnit: Medical
+    PostalCode: "37235"
+    Province: TN
+    StreetAddress: 2101 Vanderbilt Pl
+  Domain: clinicOrg.com
+  EnableNodeOUs: true
+  Name: ClinicOrg
+  Template:
+    Count: 2
+    SANS:
+    - localhost
+  Users:
+    Count: 2
