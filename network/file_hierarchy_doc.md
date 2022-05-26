@@ -7,7 +7,7 @@
 |   |   configtx.yaml - sample config file for channel configuration (NOT the actual config)
 |   |   core.yaml - sample peer configuration file
 |   |   orderer.yaml - orderer configuration file used for creating a channel
-|___test-network - Primary folder for setting up our network
+|___network - Primary folder for setting up our network
 |   |___compose - Docker configuration
 |   |   |___docker
 |   |   |   |___peercfg
