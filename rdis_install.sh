@@ -51,6 +51,8 @@ peer lifecycle chaincode install ${CC_NAME}.tar.gz
 peer lifecycle chaincode queryinstalled >&cqHospitalOrglog.txt
 PACKAGE_ID=$(sed -n "/${CC_NAME}_${CC_VERSION}/{s/^Package ID: //; s/, Label:.*$//; p;}" cqHospitalOrglog.txt)
 echo $PACKAGE_ID
+
+#TODO - CROSSCHECK THIS COMMAND
 peer lifecycle chaincode approveformyorg -o orderer0.ordererOrg.net:7050  --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name $CC_NAME --version $CC_VERSION --package-id $PACKAGE_ID --sequence $CC_SEQ --init-required  --signature-policy "  OR( 'HospitalOrgMSP.member' , 'ClinicOrgMSP.member')  " 
 
 
@@ -64,10 +66,16 @@ echo $PACKAGE_ID
 peer lifecycle chaincode approveformyorg -o orderer0.ordererOrg.net:7050  --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name $CC_NAME --version $CC_VERSION --package-id $PACKAGE_ID --sequence $CC_SEQ --init-required  --signature-policy "  OR( 'HospitalOrgMSP.member' , 'ClinicOrgMSP.member')  " 
 
 
+#TODO - add this command
+# checkCommitReadiness VERSION PEER ORG
+
+# peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} --output json >&log.txt
+
 
 #Commit chaincode installation 
 
 export PEER_CONN=" --peerAddresses peer0.hospitalOrg.com:7051 --tlsRootCertFiles ${HOSPITALORG_PEER0_CA}  --peerAddresses peer0.clinicOrg.com:7051 --tlsRootCertFiles ${CLINICORG_PEER0_CA} "
+#TODO - CROSSCHECK THIS COMMAND
 peer lifecycle chaincode commit -o orderer0.ordererOrg.net:7050  --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name $CC_NAME --version $CC_VERSION --sequence $CC_SEQ --init-required --signature-policy "  OR( 'HospitalOrgMSP.member' , 'ClinicOrgMSP.member') " $PEER_CONN
 
 
