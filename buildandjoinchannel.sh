@@ -1,45 +1,41 @@
 #!/bin/bash
 
-echo "Building channel for rdis" 
-export CHANNEL_NAME="rdis"
+echo "Building channel for sales" 
+export CHANNEL_NAME="sales"
 
 
 
 #Register the channel with orderer
 
-. setpeer.sh HospitalOrg peer0
-peer channel create -o orderer0.ordererOrg.net:7050 -c $CHANNEL_NAME -f ./rdis.tx --tls true --cafile $ORDERER_CA -t 1000s
+. setpeer.sh Buyer peer0
+peer channel create -o orderer0.orderer.net:7050 -c $CHANNEL_NAME -f ./sales.tx --tls true --cafile $ORDERER_CA -t 1000s
 
-# Joining rdis for org peers of HospitalOrg
+# Joining sales for org peers of Buyer
 
 
-. setpeer.sh HospitalOrg peer0
+. setpeer.sh Buyer peer0
 peer channel join -b $CHANNEL_NAME.block
 
 
-. setpeer.sh HospitalOrg peer1
+. setpeer.sh Buyer peer1
 peer channel join -b $CHANNEL_NAME.block
 
 
-. setpeer.sh HospitalOrg peer2
+#Update the anchor peers for org Buyer
+. setpeer.sh Buyer peer0
+peer channel update -o  orderer0.orderer.net:7050 -c $CHANNEL_NAME -f ./salesBuyerMSPAnchor.tx --tls --cafile $ORDERER_CA 
+
+# Joining sales for org peers of Seller
+
+
+. setpeer.sh Seller peer0
 peer channel join -b $CHANNEL_NAME.block
 
 
-#Update the anchor peers for org HospitalOrg
-. setpeer.sh HospitalOrg peer0
-peer channel update -o  orderer0.ordererOrg.net:7050 -c $CHANNEL_NAME -f ./rdisHospitalOrgMSPAnchor.tx --tls --cafile $ORDERER_CA 
-
-# Joining rdis for org peers of ClinicOrg
-
-
-. setpeer.sh ClinicOrg peer0
+. setpeer.sh Seller peer1
 peer channel join -b $CHANNEL_NAME.block
 
 
-. setpeer.sh ClinicOrg peer1
-peer channel join -b $CHANNEL_NAME.block
-
-
-#Update the anchor peers for org ClinicOrg
-. setpeer.sh ClinicOrg peer0
-peer channel update -o  orderer0.ordererOrg.net:7050 -c $CHANNEL_NAME -f ./rdisClinicOrgMSPAnchor.tx --tls --cafile $ORDERER_CA 
+#Update the anchor peers for org Seller
+. setpeer.sh Seller peer0
+peer channel update -o  orderer0.orderer.net:7050 -c $CHANNEL_NAME -f ./salesSellerMSPAnchor.tx --tls --cafile $ORDERER_CA 

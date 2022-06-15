@@ -18,8 +18,8 @@ All the commands must be executed from  <network> directory.
 ```sh 
 
   export NETWORKDIR=`pwd` 
-  mkdir -p chaincode/github.com/rdis 
-  cd chaincode/github.com/rdis 
+  mkdir -p chaincode/github.com/salestrade 
+  cd chaincode/github.com/salestrade 
  # Copy the chain code source files here 
 
   go mod vendor
@@ -34,10 +34,9 @@ All the commands must be executed from  <network> directory.
   docker-compose up -d 
 ``` 
 
- 5. Run organization affiliation scripts for adding organizations
+ 5. Run organization affiliation script for add organization for each orgs
 ```sh 
-  docker exec -it ca.hospitalOrg.com bash -e add_affiliation_hospitalorg.sh
-  docker exec -it ca.clinicOrg.com bash -e add_affiliation_clinicorg.sh  
+  docker exec -it ca.<org domain name> bash -e add_affiliation_<org_name>.sh 
 ``` 
 
  6. Build and join channel. Make sure that network is running 
@@ -49,7 +48,7 @@ All the commands must be executed from  <network> directory.
 
  7. Install and intantiate the chain codes 
 ```sh 
-  docker exec -it cli bash -e ./rdis_install.sh
+  docker exec -it cli bash -e  ./salestrade_install.sh
 ``` 
 ##  First time setup instructions ( END) 
 
@@ -59,7 +58,7 @@ All the commands must be executed from  <network> directory.
 Then run the following commands as appropriate
 
 ```sh 
-  docker exec -it cli bash -e  ./rdis_update.sh <version>
+  docker exec -it cli bash -e  ./salestrade_update.sh <version>
 ``` 
 ## When chain code is modified ( END) 
 
@@ -82,7 +81,3 @@ Then run the following commands as appropriate
  
 
 ## To destory  an existing network ( END) 
-
-
-# ACKNOWDLEDGEMENT
-A huge thanks goes to [suddutt1](https://github.com/suddutt1) for his public repository [fabricnetgenerator](https://github.com/suddutt1/fabricnetgenerator) that helped us automate the process of creating a custom network configuration.

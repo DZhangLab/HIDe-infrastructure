@@ -2,44 +2,44 @@ version: "2"
 networks:
   fabricnetwork: {}
 services:
-  ca.clinicOrg.com:
-    container_name: ca.clinicOrg.com
+  ca.rapidseller.net:
+    container_name: ca.rapidseller.net
     extends:
       file: base.yaml
       service: ca
     environment:
-    - FABRIC_CA_SERVER_CA_NAME=ClinicOrgCA
-    - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.clinicOrg.com-cert.pem
-    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CLINICORG_PRIVATE_KEY
-    - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.clinicOrg.com-cert.pem
-    - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CLINICORG_PRIVATE_KEY
+    - FABRIC_CA_SERVER_CA_NAME=SellerCA
+    - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.rapidseller.net-cert.pem
+    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/SELLER_PRIVATE_KEY
+    - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.rapidseller.net-cert.pem
+    - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/SELLER_PRIVATE_KEY
     working_dir: /opt/ws
     volumes:
-    - ./crypto-config/peerOrganizations/clinicOrg.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    - ./crypto-config/peerOrganizations/rapidseller.net/ca/:/etc/hyperledger/fabric-ca-server-config
     - ./:/opt/ws
-    - ./ca-clinicorg/fabric-ca-server.db:/etc/hyperledger/fabric-ca-server/fabric-ca-server.db
+    - ./ca-seller/fabric-ca-server.db:/etc/hyperledger/fabric-ca-server/fabric-ca-server.db
     ports:
     - 8054:7054
     networks:
     - fabricnetwork
     extra_hosts:
     - myhost:127.0.0.1
-  ca.hospitalOrg.com:
-    container_name: ca.hospitalOrg.com
+  ca.superbuyer.com:
+    container_name: ca.superbuyer.com
     extends:
       file: base.yaml
       service: ca
     environment:
-    - FABRIC_CA_SERVER_CA_NAME=HospitalOrgCA
-    - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.hospitalOrg.com-cert.pem
-    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/HOSPITALORG_PRIVATE_KEY
-    - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.hospitalOrg.com-cert.pem
-    - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/HOSPITALORG_PRIVATE_KEY
+    - FABRIC_CA_SERVER_CA_NAME=BuyerCA
+    - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.superbuyer.com-cert.pem
+    - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/BUYER_PRIVATE_KEY
+    - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.superbuyer.com-cert.pem
+    - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/BUYER_PRIVATE_KEY
     working_dir: /opt/ws
     volumes:
-    - ./crypto-config/peerOrganizations/hospitalOrg.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    - ./crypto-config/peerOrganizations/superbuyer.com/ca/:/etc/hyperledger/fabric-ca-server-config
     - ./:/opt/ws
-    - ./ca-hospitalorg/fabric-ca-server.db:/etc/hyperledger/fabric-ca-server/fabric-ca-server.db
+    - ./ca-buyer/fabric-ca-server.db:/etc/hyperledger/fabric-ca-server/fabric-ca-server.db
     ports:
     - 7054:7054
     networks:
@@ -62,13 +62,12 @@ services:
     - ./:/opt/ws
     - ./chaincode/github.com:/opt/gopath/src/github.com
     depends_on:
-    - orderer0.ordererOrg.net
-    - orderer1.ordererOrg.net
-    - peer0.hospitalOrg.com
-    - peer1.hospitalOrg.com
-    - peer2.hospitalOrg.com
-    - peer0.clinicOrg.com
-    - peer1.clinicOrg.com
+    - orderer0.orderer.net
+    - orderer1.orderer.net
+    - peer0.superbuyer.com
+    - peer1.superbuyer.com
+    - peer0.rapidseller.net
+    - peer1.rapidseller.net
     networks:
     - fabricnetwork
     extra_hosts:
@@ -117,220 +116,174 @@ services:
     - 8984:5984
     networks:
     - fabricnetwork
-  couch4:
-    container_name: couch4
-    extends:
-      file: base.yaml
-      service: couchdb
-    volumes:
-    - ./worldstate/couch4:/opt/couchdb/data
-    ports:
-    - 9984:5984
-    networks:
-    - fabricnetwork
-  orderer0.ordererOrg.net:
-    container_name: orderer0.ordererOrg.net
+  orderer0.orderer.net:
+    container_name: orderer0.orderer.net
     extends:
       file: base.yaml
       service: orderer
     volumes:
-    - ./blocks/orderer0ordererOrgnet:/var/hyperledger/production/orderer
+    - ./blocks/orderer0orderernet:/var/hyperledger/production/orderer
     - ./genesis.block:/var/hyperledger/orderer/genesis.block
-    - ./crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer0.ordererOrg.net/msp:/var/hyperledger/orderer/msp
-    - ./crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer0.ordererOrg.net/tls/:/var/hyperledger/orderer/tls
+    - ./crypto-config/ordererOrganizations/orderer.net/orderers/orderer0.orderer.net/msp:/var/hyperledger/orderer/msp
+    - ./crypto-config/ordererOrganizations/orderer.net/orderers/orderer0.orderer.net/tls/:/var/hyperledger/orderer/tls
     ports:
     - 7050:7050
     networks:
     - fabricnetwork
     extra_hosts:
     - myhost:127.0.0.1
-  orderer1.ordererOrg.net:
-    container_name: orderer1.ordererOrg.net
+  orderer1.orderer.net:
+    container_name: orderer1.orderer.net
     extends:
       file: base.yaml
       service: orderer
     volumes:
-    - ./blocks/orderer1ordererOrgnet:/var/hyperledger/production/orderer
+    - ./blocks/orderer1orderernet:/var/hyperledger/production/orderer
     - ./genesis.block:/var/hyperledger/orderer/genesis.block
-    - ./crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer1.ordererOrg.net/msp:/var/hyperledger/orderer/msp
-    - ./crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer1.ordererOrg.net/tls/:/var/hyperledger/orderer/tls
+    - ./crypto-config/ordererOrganizations/orderer.net/orderers/orderer1.orderer.net/msp:/var/hyperledger/orderer/msp
+    - ./crypto-config/ordererOrganizations/orderer.net/orderers/orderer1.orderer.net/tls/:/var/hyperledger/orderer/tls
     ports:
     - 8050:7050
     networks:
     - fabricnetwork
     extra_hosts:
     - myhost:127.0.0.1
-  peer0.clinicOrg.com:
-    container_name: peer0.clinicOrg.com
+  peer0.rapidseller.net:
+    container_name: peer0.rapidseller.net
     extends:
       file: base.yaml
       service: peer
     environment:
-    - CORE_PEER_ID=peer0.clinicOrg.com
-    - CORE_PEER_ADDRESS=peer0.clinicOrg.com:7051
-    - CORE_PEER_CHAINCODELISTENADDRESS=peer0.clinicOrg.com:7052
-    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.clinicOrg.com:7051
-    - CORE_PEER_EVENTS_ADDRESS=peer0.clinicOrg.com:7053
-    - CORE_PEER_LOCALMSPID=ClinicOrgMSP
-    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couch3:5984
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
-    - CORE_CHAINCODE_MODE=net
-    - CORE_PEER_NETWORKID=bc
-    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.clinicOrg.com:7051
-    volumes:
-    - ./blocks/peer0clinicOrgcom:/var/hyperledger/production
-    - /var/run/:/host/var/run/
-    - ./crypto-config/peerOrganizations/clinicOrg.com/peers/peer0.clinicOrg.com/msp:/etc/hyperledger/fabric/msp
-    - ./crypto-config/peerOrganizations/clinicOrg.com/peers/peer0.clinicOrg.com/tls:/etc/hyperledger/fabric/tls
-    ports:
-    - 10051:7051
-    - 10053:7053
-    depends_on:
-    - couch3
-    - orderer0.ordererOrg.net
-    - orderer1.ordererOrg.net
-    networks:
-    - fabricnetwork
-    extra_hosts:
-    - myhost:127.0.0.1
-  peer0.hospitalOrg.com:
-    container_name: peer0.hospitalOrg.com
-    extends:
-      file: base.yaml
-      service: peer
-    environment:
-    - CORE_PEER_ID=peer0.hospitalOrg.com
-    - CORE_PEER_ADDRESS=peer0.hospitalOrg.com:7051
-    - CORE_PEER_CHAINCODELISTENADDRESS=peer0.hospitalOrg.com:7052
-    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.hospitalOrg.com:7051
-    - CORE_PEER_EVENTS_ADDRESS=peer0.hospitalOrg.com:7053
-    - CORE_PEER_LOCALMSPID=HospitalOrgMSP
-    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couch0:5984
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
-    - CORE_CHAINCODE_MODE=net
-    - CORE_PEER_NETWORKID=bc
-    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.hospitalOrg.com:7051
-    volumes:
-    - ./blocks/peer0hospitalOrgcom:/var/hyperledger/production
-    - /var/run/:/host/var/run/
-    - ./crypto-config/peerOrganizations/hospitalOrg.com/peers/peer0.hospitalOrg.com/msp:/etc/hyperledger/fabric/msp
-    - ./crypto-config/peerOrganizations/hospitalOrg.com/peers/peer0.hospitalOrg.com/tls:/etc/hyperledger/fabric/tls
-    ports:
-    - 7051:7051
-    - 7053:7053
-    depends_on:
-    - couch0
-    - orderer0.ordererOrg.net
-    - orderer1.ordererOrg.net
-    networks:
-    - fabricnetwork
-    extra_hosts:
-    - myhost:127.0.0.1
-  peer1.clinicOrg.com:
-    container_name: peer1.clinicOrg.com
-    extends:
-      file: base.yaml
-      service: peer
-    environment:
-    - CORE_PEER_ID=peer1.clinicOrg.com
-    - CORE_PEER_ADDRESS=peer1.clinicOrg.com:7051
-    - CORE_PEER_CHAINCODELISTENADDRESS=peer1.clinicOrg.com:7052
-    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.clinicOrg.com:7051
-    - CORE_PEER_EVENTS_ADDRESS=peer1.clinicOrg.com:7053
-    - CORE_PEER_LOCALMSPID=ClinicOrgMSP
-    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couch4:5984
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
-    - CORE_CHAINCODE_MODE=net
-    - CORE_PEER_NETWORKID=bc
-    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.clinicOrg.com:7051
-    volumes:
-    - ./blocks/peer1clinicOrgcom:/var/hyperledger/production
-    - /var/run/:/host/var/run/
-    - ./crypto-config/peerOrganizations/clinicOrg.com/peers/peer1.clinicOrg.com/msp:/etc/hyperledger/fabric/msp
-    - ./crypto-config/peerOrganizations/clinicOrg.com/peers/peer1.clinicOrg.com/tls:/etc/hyperledger/fabric/tls
-    ports:
-    - 11051:7051
-    - 11053:7053
-    depends_on:
-    - couch4
-    - orderer0.ordererOrg.net
-    - orderer1.ordererOrg.net
-    networks:
-    - fabricnetwork
-    extra_hosts:
-    - myhost:127.0.0.1
-  peer1.hospitalOrg.com:
-    container_name: peer1.hospitalOrg.com
-    extends:
-      file: base.yaml
-      service: peer
-    environment:
-    - CORE_PEER_ID=peer1.hospitalOrg.com
-    - CORE_PEER_ADDRESS=peer1.hospitalOrg.com:7051
-    - CORE_PEER_CHAINCODELISTENADDRESS=peer1.hospitalOrg.com:7052
-    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.hospitalOrg.com:7051
-    - CORE_PEER_EVENTS_ADDRESS=peer1.hospitalOrg.com:7053
-    - CORE_PEER_LOCALMSPID=HospitalOrgMSP
-    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couch1:5984
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
-    - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
-    - CORE_CHAINCODE_MODE=net
-    - CORE_PEER_NETWORKID=bc
-    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.hospitalOrg.com:7051
-    volumes:
-    - ./blocks/peer1hospitalOrgcom:/var/hyperledger/production
-    - /var/run/:/host/var/run/
-    - ./crypto-config/peerOrganizations/hospitalOrg.com/peers/peer1.hospitalOrg.com/msp:/etc/hyperledger/fabric/msp
-    - ./crypto-config/peerOrganizations/hospitalOrg.com/peers/peer1.hospitalOrg.com/tls:/etc/hyperledger/fabric/tls
-    ports:
-    - 8051:7051
-    - 8053:7053
-    depends_on:
-    - couch1
-    - orderer0.ordererOrg.net
-    - orderer1.ordererOrg.net
-    networks:
-    - fabricnetwork
-    extra_hosts:
-    - myhost:127.0.0.1
-  peer2.hospitalOrg.com:
-    container_name: peer2.hospitalOrg.com
-    extends:
-      file: base.yaml
-      service: peer
-    environment:
-    - CORE_PEER_ID=peer2.hospitalOrg.com
-    - CORE_PEER_ADDRESS=peer2.hospitalOrg.com:7051
-    - CORE_PEER_CHAINCODELISTENADDRESS=peer2.hospitalOrg.com:7052
-    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.hospitalOrg.com:7051
-    - CORE_PEER_EVENTS_ADDRESS=peer2.hospitalOrg.com:7053
-    - CORE_PEER_LOCALMSPID=HospitalOrgMSP
+    - CORE_PEER_ID=peer0.rapidseller.net
+    - CORE_PEER_ADDRESS=peer0.rapidseller.net:7051
+    - CORE_PEER_CHAINCODELISTENADDRESS=peer0.rapidseller.net:7052
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.rapidseller.net:7051
+    - CORE_PEER_EVENTS_ADDRESS=peer0.rapidseller.net:7053
+    - CORE_PEER_LOCALMSPID=SellerMSP
     - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
     - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couch2:5984
     - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
     - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
     - CORE_CHAINCODE_MODE=net
     - CORE_PEER_NETWORKID=bc
-    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.hospitalOrg.com:7051
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.rapidseller.net:7051
     volumes:
-    - ./blocks/peer2hospitalOrgcom:/var/hyperledger/production
+    - ./blocks/peer0rapidsellernet:/var/hyperledger/production
     - /var/run/:/host/var/run/
-    - ./crypto-config/peerOrganizations/hospitalOrg.com/peers/peer2.hospitalOrg.com/msp:/etc/hyperledger/fabric/msp
-    - ./crypto-config/peerOrganizations/hospitalOrg.com/peers/peer2.hospitalOrg.com/tls:/etc/hyperledger/fabric/tls
+    - ./crypto-config/peerOrganizations/rapidseller.net/peers/peer0.rapidseller.net/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/rapidseller.net/peers/peer0.rapidseller.net/tls:/etc/hyperledger/fabric/tls
     ports:
     - 9051:7051
     - 9053:7053
     depends_on:
     - couch2
-    - orderer0.ordererOrg.net
-    - orderer1.ordererOrg.net
+    - orderer0.orderer.net
+    - orderer1.orderer.net
+    networks:
+    - fabricnetwork
+    extra_hosts:
+    - myhost:127.0.0.1
+  peer0.superbuyer.com:
+    container_name: peer0.superbuyer.com
+    extends:
+      file: base.yaml
+      service: peer
+    environment:
+    - CORE_PEER_ID=peer0.superbuyer.com
+    - CORE_PEER_ADDRESS=peer0.superbuyer.com:7051
+    - CORE_PEER_CHAINCODELISTENADDRESS=peer0.superbuyer.com:7052
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.superbuyer.com:7051
+    - CORE_PEER_EVENTS_ADDRESS=peer0.superbuyer.com:7053
+    - CORE_PEER_LOCALMSPID=BuyerMSP
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couch0:5984
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    - CORE_CHAINCODE_MODE=net
+    - CORE_PEER_NETWORKID=bc
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.superbuyer.com:7051
+    volumes:
+    - ./blocks/peer0superbuyercom:/var/hyperledger/production
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/superbuyer.com/peers/peer0.superbuyer.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/superbuyer.com/peers/peer0.superbuyer.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+    - 7051:7051
+    - 7053:7053
+    depends_on:
+    - couch0
+    - orderer0.orderer.net
+    - orderer1.orderer.net
+    networks:
+    - fabricnetwork
+    extra_hosts:
+    - myhost:127.0.0.1
+  peer1.rapidseller.net:
+    container_name: peer1.rapidseller.net
+    extends:
+      file: base.yaml
+      service: peer
+    environment:
+    - CORE_PEER_ID=peer1.rapidseller.net
+    - CORE_PEER_ADDRESS=peer1.rapidseller.net:7051
+    - CORE_PEER_CHAINCODELISTENADDRESS=peer1.rapidseller.net:7052
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.rapidseller.net:7051
+    - CORE_PEER_EVENTS_ADDRESS=peer1.rapidseller.net:7053
+    - CORE_PEER_LOCALMSPID=SellerMSP
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couch3:5984
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    - CORE_CHAINCODE_MODE=net
+    - CORE_PEER_NETWORKID=bc
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.rapidseller.net:7051
+    volumes:
+    - ./blocks/peer1rapidsellernet:/var/hyperledger/production
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/rapidseller.net/peers/peer1.rapidseller.net/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/rapidseller.net/peers/peer1.rapidseller.net/tls:/etc/hyperledger/fabric/tls
+    ports:
+    - 10051:7051
+    - 10053:7053
+    depends_on:
+    - couch3
+    - orderer0.orderer.net
+    - orderer1.orderer.net
+    networks:
+    - fabricnetwork
+    extra_hosts:
+    - myhost:127.0.0.1
+  peer1.superbuyer.com:
+    container_name: peer1.superbuyer.com
+    extends:
+      file: base.yaml
+      service: peer
+    environment:
+    - CORE_PEER_ID=peer1.superbuyer.com
+    - CORE_PEER_ADDRESS=peer1.superbuyer.com:7051
+    - CORE_PEER_CHAINCODELISTENADDRESS=peer1.superbuyer.com:7052
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.superbuyer.com:7051
+    - CORE_PEER_EVENTS_ADDRESS=peer1.superbuyer.com:7053
+    - CORE_PEER_LOCALMSPID=BuyerMSP
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couch1:5984
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+    - CORE_CHAINCODE_MODE=net
+    - CORE_PEER_NETWORKID=bc
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.superbuyer.com:7051
+    volumes:
+    - ./blocks/peer1superbuyercom:/var/hyperledger/production
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/superbuyer.com/peers/peer1.superbuyer.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/superbuyer.com/peers/peer1.superbuyer.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+    - 8051:7051
+    - 8053:7053
+    depends_on:
+    - couch1
+    - orderer0.orderer.net
+    - orderer1.orderer.net
     networks:
     - fabricnetwork
     extra_hosts:

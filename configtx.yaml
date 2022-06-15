@@ -3,7 +3,7 @@ Organizations:
     - &OrdererOrg
             Name: OrdererMSP
             ID: OrdererMSP
-            MSPDir: crypto-config/ordererOrganizations/ordererOrg.net/msp
+            MSPDir: crypto-config/ordererOrganizations/orderer.net/msp
             Policies:
                 Readers:
                     Type: Signature
@@ -16,46 +16,46 @@ Organizations:
                     Rule: "OR('OrdererMSP.admin')"
 
     
-    - &HospitalOrgOrg
-            Name: HospitalOrgMSP
-            ID: HospitalOrgMSP
-            MSPDir: crypto-config/peerOrganizations/hospitalOrg.com/msp
+    - &BuyerOrg
+            Name: BuyerMSP
+            ID: BuyerMSP
+            MSPDir: crypto-config/peerOrganizations/superbuyer.com/msp
             Policies:
                 Readers:
                     Type: Signature
-                    Rule: "OR('HospitalOrgMSP.admin', 'HospitalOrgMSP.peer', 'HospitalOrgMSP.client' )"
+                    Rule: "OR('BuyerMSP.admin', 'BuyerMSP.peer', 'BuyerMSP.client' )"
                 Writers:
                     Type: Signature
-                    Rule: "OR('HospitalOrgMSP.admin', 'HospitalOrgMSP.client' )"
+                    Rule: "OR('BuyerMSP.admin', 'BuyerMSP.client' )"
                 Admins:
                     Type: Signature
-                    Rule: "OR('HospitalOrgMSP.admin')"
+                    Rule: "OR('BuyerMSP.admin')"
                 Endorsement:
                     Type: Signature
-                    Rule: "OR('HospitalOrgMSP.peer')"                
+                    Rule: "OR('BuyerMSP.peer')"                
             AnchorPeers:
-              - Host: peer0.hospitalOrg.com
+              - Host: peer0.superbuyer.com
                 Port: 7051
     
-    - &ClinicOrgOrg
-            Name: ClinicOrgMSP
-            ID: ClinicOrgMSP
-            MSPDir: crypto-config/peerOrganizations/clinicOrg.com/msp
+    - &SellerOrg
+            Name: SellerMSP
+            ID: SellerMSP
+            MSPDir: crypto-config/peerOrganizations/rapidseller.net/msp
             Policies:
                 Readers:
                     Type: Signature
-                    Rule: "OR('ClinicOrgMSP.admin', 'ClinicOrgMSP.peer', 'ClinicOrgMSP.client' )"
+                    Rule: "OR('SellerMSP.admin', 'SellerMSP.peer', 'SellerMSP.client' )"
                 Writers:
                     Type: Signature
-                    Rule: "OR('ClinicOrgMSP.admin', 'ClinicOrgMSP.client' )"
+                    Rule: "OR('SellerMSP.admin', 'SellerMSP.client' )"
                 Admins:
                     Type: Signature
-                    Rule: "OR('ClinicOrgMSP.admin')"
+                    Rule: "OR('SellerMSP.admin')"
                 Endorsement:
                     Type: Signature
-                    Rule: "OR('ClinicOrgMSP.peer')"                
+                    Rule: "OR('SellerMSP.peer')"                
             AnchorPeers:
-              - Host: peer0.clinicOrg.com
+              - Host: peer0.rapidseller.net
                 Port: 7051
     
 
@@ -94,8 +94,8 @@ Application: &ApplicationDefaults
 Orderer: &OrdererDefaults
     OrdererType: etcdraft
     Addresses:
-          - orderer0.ordererOrg.net:7050
-          - orderer1.ordererOrg.net:7050
+          - orderer0.orderer.net:7050
+          - orderer1.orderer.net:7050
     BatchTimeout: 2s
     BatchSize:
         MaxMessageCount: 10
@@ -104,15 +104,15 @@ Orderer: &OrdererDefaults
     EtcdRaft:
         Consenters:
           
-            - Host: orderer0.ordererOrg.net
+            - Host: orderer0.orderer.net
               Port: 7050
-              ClientTLSCert: crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer0.ordererOrg.net/tls/server.crt
-              ServerTLSCert: crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer0.ordererOrg.net/tls/server.crt
+              ClientTLSCert: crypto-config/ordererOrganizations/orderer.net/orderers/orderer0.orderer.net/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/orderer.net/orderers/orderer0.orderer.net/tls/server.crt
            
-            - Host: orderer1.ordererOrg.net
+            - Host: orderer1.orderer.net
               Port: 7050
-              ClientTLSCert: crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer1.ordererOrg.net/tls/server.crt
-              ServerTLSCert: crypto-config/ordererOrganizations/ordererOrg.net/orderers/orderer1.ordererOrg.net/tls/server.crt
+              ClientTLSCert: crypto-config/ordererOrganizations/orderer.net/orderers/orderer1.orderer.net/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/orderer.net/orderers/orderer1.orderer.net/tls/server.crt
            
     Organizations:
 
@@ -154,21 +154,21 @@ Profiles:
             Capabilities:
                 <<: *OrdererCapabilities 
         Consortiums:
-            RDISConsortium:
+            SupplyChainConsortium:
                 Organizations:
-                   - *HospitalOrgOrg
-                   - *ClinicOrgOrg
+                   - *BuyerOrg
+                   - *SellerOrg
                    
         
     
-    rdis:
-        Consortium: RDISConsortium
+    sales:
+        Consortium: SupplyChainConsortium
         <<: *ChannelDefaults
         Application:
             <<: *ApplicationDefaults
             Organizations:
-              - *HospitalOrgOrg
-              - *ClinicOrgOrg
+              - *BuyerOrg
+              - *SellerOrg
               
             Capabilities:
               <<: *ApplicationCapabilities
