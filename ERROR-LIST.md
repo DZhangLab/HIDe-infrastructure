@@ -86,6 +86,15 @@ Solutions are a W.I.P. Please add your solution if it worked for you.
 + Try using a different ccl to instantiate the chaincode.
 ```
 
+```diff
+- no matching manifest for linux/arm64/v8 in the manifest list entries
+# Binaries for the docker images are not supported. I got this error on Macbook Pro 14in running apple silicon
++ For each failed image. Do this (here is an example for one.
++ Error: 2.2.0: Pulling from hyperledger/fabric-peer
++       no matching manifest for linux/arm64/v8 in the manifest list entries
++ Fix: docker pull --platform amd64 hyperledger/fabric-peer:2.2
++ Change version if necessary
+```
 
 #### Unresolved Errors
 
