@@ -92,8 +92,16 @@ Solutions are a W.I.P. Please add your solution if it worked for you.
 + For each failed image. Do this (here is an example for one.
 + Error: 2.2.0: Pulling from hyperledger/fabric-peer
 +       no matching manifest for linux/arm64/v8 in the manifest list entries
-+ Fix: docker pull --platform amd64 hyperledger/fabric-peer:2.2
++ Fix: docker pull --platform amd64 hyperledger/fabric-peer:2.2.0
 + Change version if necessary. fabric-ca (certificate authority) should be version 1.4.9
+```
+
+```diff
+- ERROR: manifest for hyperledger/fabric-tools:latest not found
+- unable to install a specific version of the docker image. happnes with latest
+# the network is looking for a spefific tag of the docker image and is not able to locate it
++ change the tag with the command (replace fabric-peer with your own image)
++ docker tag hyperledger/fabric-peer:2.2.0 hyperledger/fabric-peer:latest
 ```
 
 #### Unresolved Errors
