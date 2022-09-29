@@ -93,7 +93,7 @@ Solutions are a W.I.P. Please add your solution if it worked for you.
 + Error: 2.2.0: Pulling from hyperledger/fabric-peer
 +       no matching manifest for linux/arm64/v8 in the manifest list entries
 + Fix: docker pull --platform amd64 hyperledger/fabric-peer:2.2
-+ Change version if necessary
++ Change version if necessary. fabric-ca (certificate authority) should be version 1.4.9
 ```
 
 #### Unresolved Errors
