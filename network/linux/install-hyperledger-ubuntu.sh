@@ -33,11 +33,15 @@ sudo docker run hello-world
 
 sudo apt install docker-compose -y
 
-##########################################################################################
-# download & install Hyperledger Fabric binaries and samples
-##########################################################################################
-
 sudo chmod 666 /var/run/docker.sock
+
+##########################################################################################
+# Download & install Hyperledger Fabric binaries and samples:
+#   - Clones the hyperledger/fabric-samples repository
+#   - Downloads the latest Hyperledger Fabric Docker images and tags them as latest
+#   - Downloads the following platform-specific Hyperledger Fabric CLI tool binaries and config files into the fabric-samples /bin and /config directories. 
+#     These binaries will help you interact with the test network.
+##########################################################################################
 curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/bootstrap.sh | bash -s
 
 # TODO: Need? add my username (ubuntu) to the docker group via: sudo usermod -aG docker ubuntu
