@@ -118,8 +118,6 @@ cd ../asset-transfer-basic/chaincode-javascript/
 sudo apt install npm -y
 ```
 
+### Add a peer to the Test Network
 
-
-
-
-
+See [Adding a Peer](add-peer/adding-a-peer.md)
