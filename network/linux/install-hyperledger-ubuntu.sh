@@ -44,7 +44,8 @@ sudo chmod 666 /var/run/docker.sock
 ##########################################################################################
 curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/bootstrap.sh | bash -s
 
-# TODO: Need? add my username (ubuntu) to the docker group via: sudo usermod -aG docker ubuntu
+# Add my username (ubuntu) to the docker group (note, this was not needed in all experiements)
+sudo usermod -aG docker ubuntu
 
 # add HL binaries to path
 export PATH=${PWD}/../bin:$PATH
