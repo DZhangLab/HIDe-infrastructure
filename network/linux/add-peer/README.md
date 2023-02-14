@@ -47,6 +47,12 @@ These steps were taken from the blog [Add a Peer to an Organization in Test Netw
 	export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 	```
 
+
+
+
+
+
+
 1. Bring up the Test Network:
 	
 		cd fabric-samples/test-network
@@ -58,9 +64,15 @@ These steps were taken from the blog [Add a Peer to an Organization in Test Netw
 	- 1 orderer 
 	- 2 peers, one for Org1 and one for Org2 
 
+
+
+
+ON EACH ORG? (yes for query)
+
+
 1. Deploy chaincode SACC using network/sh:
 
-		./network.sh up deployC —can mycc —tcp ../chaincode/sacc 
+		./network.sh up deployCC —ccn mycc —ccp ../chaincode/sacc -ccl go
 
 	Look at the output of service discovery about endorsement. We see endorsing policy requires both organizations, and each organization has one peer currently
 
@@ -85,7 +97,7 @@ These steps were taken from the blog [Add a Peer to an Organization in Test Netw
 
 	Use the docker compose file adapted from `docker-compose-test-net.yaml`, with updated host, directory and port for peer1.
 
-		docker-compose -f HIDe-infrastructure/network/linux/add-peer/docker/docker-compose-test-net-peer1.yaml up -d
+		docker-compose -f ~/HIDe-infrastructure/network/linux/add-peer/docker/docker-compose-test-net-peer1.yaml up -d
 
 	Check to see the peer1 container is up with `docker ps`
 
