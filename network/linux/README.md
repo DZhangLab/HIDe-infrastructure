@@ -8,9 +8,8 @@
 ## Outline of the steps
 
 - Install dependencies and download Hyperledger Test Network files
-- Run Hyperledger Fabric test network via docker compose. It comes with 2 peers and 1 orderer, and a channel called `mychannel`.
+- Run Hyperledger Fabric test network via docker compose. It comes with 2 peers and 1 orderer, and a channel, run by 2 organizations:
 
-        - What orgs? 
         - peer0.org1
         - peer0.org2
 
@@ -119,10 +118,10 @@ cd fabric-samples/test-network
 ./network.sh up -ca
 ```
 
-- create channel 'mychannel'
+- create channel
 
 ```bash 
-./network.sh createChannel
+./network.sh createChannel -c channel1
 ```
 
 ### Install a chaincode
@@ -131,7 +130,7 @@ cd fabric-samples/test-network
 - then will deploy it on the channel specified using the channel flag (or mychannel if no channel is specified)
 
 ```bash
-./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go -c channel1
 ```
 
 ### Add Hyperledger binaries to path
@@ -160,27 +159,15 @@ The CORE_PEER_TLS_ROOTCERT_FILE and CORE_PEER_MSPCONFIGPATH environment variable
 Run the following command to initialize the ledger with assets:
 
 ```bash
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C channel1 -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
 ```
 
-peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+Now query that:
 
+```
+peer chaincode query -C channel1 -n basic -c '{"Args":["GetAllAssets"]}'
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Add a peer to the Test Network
+## Add a peer to the Test Network
 
 See [Adding a Peer](add-peer/README.md)
