@@ -161,7 +161,7 @@ export CORE_PEER_ADDRESS=localhost:7051
 
 3. Initialize the ledger with an initial list of assets. This will invoke the "InitLedger" function of the JavaScript chaincode
 
-- Tip: When invoking a function, in this case "InitLedger", you need to include the contract name and a colon before the function name (ie. "UserRegistry:GetUser" instead of "GetUser").
+- Tip: When invoking a function, in this case "InitLedger", you may need to include the contract name and a colon before the function name (ie. "UserRegistry:GetUser" instead of "GetUser").
 
 ```bash
 peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
