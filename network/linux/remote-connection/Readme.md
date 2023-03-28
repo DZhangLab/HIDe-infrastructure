@@ -1,5 +1,5 @@
 ﻿# Connecting Remotely to Hyperledger Fabric
-
+Following the steps will help you connect with Hyper Ledger Fabric running on EC2 instance on AWS from your local machine
 ## Update the connection profile and EC2 instance endpoints
 a. Locate the connection profile (connection.json) in the directory (e.g fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/).
 b. Replace the "localhost" address in the connection.json file with the public IP or DNS of your Amazon EC2 instance for all the peers, orderers, and certificate authorities.
