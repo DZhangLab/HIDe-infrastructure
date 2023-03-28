@@ -101,8 +101,6 @@ Copy the updated connection profile from your EC2 instance to your local machine
 
 Use the peer CLI tool to test the connection. In this example, we will query the installed chaincodes on the peer:
 
-bashCopy code
-
 ```export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_LOCALMSPID=Org1MSP
 export CORE_PEER_TLS_ROOTCERT_FILE=organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
