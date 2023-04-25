@@ -15,6 +15,8 @@ sudo apt-get install \
     ca-certificates \
     curl \
     gnupg \
+    jq \
+    golang \
     lsb-release
 
 # install docker
@@ -47,21 +49,40 @@ curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/boot
 # Add my username (ubuntu) to the docker group (note, this was not needed in all experiements)
 sudo usermod -aG docker ubuntu
 
+
+
+### TODO just reference script 
+
+
 # add HL binaries to path
 export PATH=${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=$PWD/../config/
 
-cd fabric-samples/test-network
 
-# start Hyperledger Fabric
-./network up 
 
-# create channel 'mychannel'. Can use `-c <channel name>` 
-./network.sh createChannel
+# cd fabric-samples/test-network
 
-##########################################################################################
-# install chaincode
-##########################################################################################
+# # Start Hyperledger Fabric, and create channel
+# ./network.sh up createChannel -c channel1
 
-cd ../asset-transfer-basic/chaincode-javascript/
-sudo apt install npm -y
+# ##########################################################################################
+# # install chaincode
+# ##########################################################################################
+# ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go -c channel1
+
+# ##########################################################################################
+# # test chaincode
+# ##########################################################################################
+
+# # As org:
+# export CORE_PEER_TLS_ENABLED=true
+# export CORE_PEER_LOCALMSPID="Org1MSP"
+# export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+# export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+# export CORE_PEER_ADDRESS=localhost:7051
+
+# ## Invoke chaincode
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C channel1 -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
+
+# ## Now query that:
+# peer chaincode query -C channel1 -n basic -c '{"Args":["GetAllAssets"]}'
