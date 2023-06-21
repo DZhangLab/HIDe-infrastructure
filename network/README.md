@@ -133,7 +133,7 @@ docker ps -a
 ./network.sh createChannel
 ```
 
-5. Run chaincode (JavaScript) on the channel. This chaincode is stored in the directory "../asset-transfer-basic/chaincode-javascript"
+5. Run chaincode (JavaScript) on the channel. This chaincode is stored in the directory "../asset-transfer-basic/chaincode-javascript". If you want to use other chaincodes stored on your local device, replace it with the desired directory. 
 
 ```bash
 ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript -ccl javascript
@@ -180,8 +180,8 @@ export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.examp
 export CORE_PEER_ADDRESS=localhost:7051
 ```
 
-3. Initialize the ledger with an initial list of assets. This will invoke the "InitLedger" function of the JavaScript chaincode
-
+3. Initialize the ledger with an initial list of assets. This will invoke the "InitLedger" function of the JavaScript chaincode. If you want to invoke a different function, replace "InitLedger" with the function name and add the parameters in "Args" (this also applies when you are running a different chaincode). 
+ 
 ```bash
 peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
 ```
