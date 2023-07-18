@@ -1,0 +1,26 @@
+set -x
+
+PATH_TO_FABRIC_BIN=/Users/wyn/dev/DZhengLab/fabric/bin
+
+echo Clean up any old environments...
+./network down
+./network unkind
+
+
+echo Setting up new environment...
+./network kind
+./network cluster init
+
+# add location of fabric binaries to PATH
+export PATH="$PATH_TO_FABRIC_BIN:$PATH"
+
+./network up
+./network channel create 
+
+./network chaincode deploy asset-transfer-basic ../asset-transfer-basic/chaincode-java
+
+./network chaincode invoke asset-transfer-basic '{"Args":["InitLedger"]}'
+./network chaincode query  asset-transfer-basic '{"Args":["ReadAsset","asset1"]}'
+
+./network rest-easy
+

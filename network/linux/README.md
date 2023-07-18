@@ -72,6 +72,11 @@ $ curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/i
 $ ./install-fabric.sh d s b
 ```
 
+Add the fabric binaries to your path
+export PATH="/Users/wyn/dev/DZhengLab/fabric/bin:$PATH"
+
+(Note, setting this can be helpful in lieu of about FABRIC_CA_SERVER_HOME=${HOME}/fabric-ca/server)
+
 <!-- 2.4.7
 ```bash
 curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/bootstrap.sh | bash -s
