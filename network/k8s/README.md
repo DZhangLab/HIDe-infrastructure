@@ -16,6 +16,8 @@ You can run this script to run all the steps:
 
 2. Run the script: 
     ```
+    mv start.txt start
+    chmod +x start
     ./start
     ```
 
