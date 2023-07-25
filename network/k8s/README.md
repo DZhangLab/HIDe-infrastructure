@@ -10,7 +10,7 @@ You will need a Kubernetes cluster to work with. For this walkthrough we'll use 
 
 You can run this script to run all the steps:
 
-1. Copy the script `start` which is in this directory to the `test-network-k8s` directory where you cloned the [Fabric Samples repository](https://github.com/hyperledger/fabric-samples). 
+1. Copy the script `start` which is in this directory to the `test-network-k8s` directory where you cloned the [Fabric Samples repository](https://github.com/hyperledger/fabric-samples). Change the PATH_TO_FABRIC_BIN on second line to a path on your local machine that represent the bin folder in your fabric-samples directory.
 
 1. Change directories into the `test-network-k8s` directory.
 
