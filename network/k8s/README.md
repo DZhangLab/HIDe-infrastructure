@@ -77,7 +77,7 @@ curl -s --header "X-Api-Key: ${SAMPLE_APIKEY}" http://fabric-rest-sample.localho
 
 *NOTE, you can execute the following script to run all the above steps:*
 
-1. Copy the script `start` which is in this directory to the `test-network-k8s` directory where you cloned the [Fabric Samples repository](https://github.com/hyperledger/fabric-samples). 
+1. Copy the script `start` which is in this directory to the `test-network-k8s` directory where you cloned the [Fabric Samples repository](https://github.com/hyperledger/fabric-samples). Change the PATH_TO_FABRIC_BIN on second line to a path on your local machine that represent the bin folder in your fabric-samples directory.
 
 1. Change directories into the `test-network-k8s` directory.
 
