@@ -2,6 +2,8 @@ set -x
 
 PATH_TO_FABRIC_BIN=/Users/wyn/dev/DZhengLab/fabric/bin
 
+trap "exit" INT
+
 echo Clean up any old environments...
 ./network down
 ./network unkind
